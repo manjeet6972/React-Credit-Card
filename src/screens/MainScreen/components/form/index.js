@@ -1,4 +1,5 @@
-import React, { useState} from 'react';
+import React, { useState } from 'react';
+import $ from 'jquery'
 
 const currentYear = new Date().getFullYear();
 const monthsArr = Array.from({ length: 12 }, (x, i) => {
@@ -62,34 +63,44 @@ export default function CForm({
         onUpdateState('isCardFlipped', false);
     };
 
- // for Multiple input fields
- function getCodeBoxElement(index) {
-    return document.getElementById('codeBox' + index);
-  }
-  function onKeyUpEvent(index, event) {
-    const eventCode = event.which || event.keyCode;
-    if (getCodeBoxElement(index).value.length === 1) {
-      if (index !== 4) {
-        getCodeBoxElement(index+ 1).focus();
-      } else {
-        getCodeBoxElement(index).blur();
-        // Submit code
-        console.log('submit code ');
-      }
-    }
-    if (eventCode === 8 && index !== 1) {
-      getCodeBoxElement(index - 1).focus();
-    }
-  }
-  function onFocusEvent(index) {
-    for (item = 1; item < index; item++) {
-      const currentElement = getCodeBoxElement(item);
-      if (!currentElement.value) {
-          currentElement.focus();
-          break;
-      }
-    }
-  }
+    // for Multiple input fields
+
+    $(function () {
+        var charLimit = 4;
+        $(".inputs").keydown(function (e) {
+
+            var keys = [8, 9, /*16, 17, 18,*/ 19, 20, 27, 33, 34, 35, 36, 37, 38, 39, 40, 45, 46, 144, 145];
+
+            if (e.which === 8 && this.value.length === 0) {
+                $(this).prev('.inputs').focus();
+            } else if ($.inArray(e.which, keys) >= 0) {
+                return true;
+            } else if (this.value.length >= charLimit) {
+                $(this).next('.inputs').focus();
+                return false;
+            } else if (e.shiftKey || e.which <= 48 || e.which >= 58) {
+                return false;
+            }
+        }).keyup(function () {
+            if (this.value.length >= charLimit) {
+                $(this).next('.inputs').focus();
+                return false;
+            }
+        });
+
+    });
+
+    // async function getClipboardContents() {
+    //     try {
+    //         const text = await navigator.clipboard.readText();
+    //         console.log('Pasted content: ', text);
+    //     } catch (err) {
+    //         console.error('Failed to read clipboard contents: ', err);
+    //     }
+    // }
+
+
+
 
     return (
         <div className="card-form">
@@ -197,19 +208,20 @@ export default function CForm({
                                 ref={cardCvv}
                             />
                         </div>
-                        
+
                     </div>
                 </div>
                 <h1>OR</h1>
                 <div>
-                <form className = "partitioned">
-                <label><input id="codeBox1" type="number" maxlength="4" onkeyup= { (e) => onKeyUpEvent(1)} onfocus={(e) => onFocusEvent(1)}/> </label>
-                <lable><input id="codeBox2" type="number" maxlength="4" onkeyup= { (e) => onKeyUpEvent(2)} onfocus={(e) => onFocusEvent(2)}/>  </lable>
-                <label><input id="codeBox3" type="number" maxlength="4" onkeyup= { (e) => onKeyUpEvent(3)} onfocus={(e) => onFocusEvent(3)}/> </label>
-                <label><input id="codeBox4" type="number" maxlength="4" onkeyup= { (e) => onKeyUpEvent(4)} onfocus={(e) => onFocusEvent(4)}/> </label>
-                </form>
+                    <form className="partitioned">
+                        <h2> Enter Credit Card number : </h2>
+                        <input className="inputs" type="number" maxlength="4" />
+                        <input className="inputs" type="number" maxlength="4"  />
+                        <input className="inputs" type="number" maxlength="4" />
+                        <input className="inputs" type="number" maxlength="4" />
+                    </form>
                 </div>
-                
+
             </div>
         </div>
     );
